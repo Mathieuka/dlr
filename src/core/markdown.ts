@@ -95,6 +95,25 @@ function formatBlockTimestamp(date: Date): string {
 	return `${y}-${m}-${d} ${h}:${min}`;
 }
 
+export function removeLastNBlocks(content: string, n: number): string {
+	const { data } = matter(content);
+	const blocks = parseBlocks(content);
+
+	if (n >= blocks.length) {
+		return `---\ntopic: ${data.topic}\ncreated: ${data.created}\ntags: ${JSON.stringify(data.tags ?? [])}\n---\n`;
+	}
+
+	const remaining = blocks.slice(0, blocks.length - n);
+	let result = `---\ntopic: ${data.topic}\ncreated: ${data.created}\ntags: ${JSON.stringify(data.tags ?? [])}\n---\n`;
+
+	for (const block of remaining) {
+		const ts = `## ${formatBlockTimestamp(block.timestamp)}`;
+		result = `${result.trimEnd()}\n\n${ts}\n\n${block.raw}\n`;
+	}
+
+	return result;
+}
+
 export function countBlockStats(block: Block): { constats: number; decisions: number } {
 	return { constats: block.constats.length, decisions: block.decisions.length };
 }

@@ -10,6 +10,8 @@ import {
 	listSessionFiles,
 	readSessionFile,
 	writeSessionFile,
+	deleteSessionFile,
+	deleteProject,
 } from './store.js';
 
 function makeTmpDir(): string {
@@ -192,6 +194,43 @@ describe('store', () => {
 
 			const filePath = path.join(paths.sessions, 'planning.md');
 			expect(fs.readFileSync(filePath, 'utf-8')).toBe('second');
+		});
+	});
+
+	describe('deleteSessionFile', () => {
+		it('deletes an existing session file', () => {
+			const cwd = path.join(tmpDir, 'myapp');
+			fs.mkdirSync(cwd, { recursive: true });
+			const paths = initProject(cwd, 'myapp');
+			writeSessionFile(paths, 'planning', 'content');
+
+			const result = deleteSessionFile(paths, 'planning');
+			expect(result).toBe(true);
+			expect(readSessionFile(paths, 'planning')).toBeNull();
+		});
+
+		it('returns false for non-existent file', () => {
+			const cwd = path.join(tmpDir, 'myapp');
+			fs.mkdirSync(cwd, { recursive: true });
+			const paths = initProject(cwd, 'myapp');
+
+			expect(deleteSessionFile(paths, 'nonexistent')).toBe(false);
+		});
+	});
+
+	describe('deleteProject', () => {
+		it('deletes an existing project directory', () => {
+			const cwd = path.join(tmpDir, 'myapp');
+			fs.mkdirSync(cwd, { recursive: true });
+			const paths = initProject(cwd, 'myapp');
+
+			const result = deleteProject('myapp');
+			expect(result).toBe(true);
+			expect(fs.existsSync(paths.project)).toBe(false);
+		});
+
+		it('returns false for non-existent project', () => {
+			expect(deleteProject('nonexistent')).toBe(false);
 		});
 	});
 });

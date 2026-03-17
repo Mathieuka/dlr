@@ -3,7 +3,7 @@ import { resolveProject, readSessionFile, writeSessionFile } from '../core/store
 import { validateBlockContent } from '../core/validator.js';
 import { generateTimestampHeader, generateISOTimestamp } from '../core/timestamp.js';
 import { createSessionFile, appendBlock } from '../core/markdown.js';
-import { isValidTopic } from '../core/topic.js';
+import { resolveTopic } from '../core/topic.js';
 
 function readStdin(): Promise<string> {
 	return new Promise((resolve, reject) => {
@@ -19,18 +19,24 @@ function readStdin(): Promise<string> {
 
 export function registerPersistCommand(program: Command): void {
 	program
-		.command('persist <topic>')
+		.command('persist [topic]')
 		.description('Save constats/decisions from stdin to a session file')
-		.action(async (topic: string) => {
-			if (!isValidTopic(topic)) {
-				process.stderr.write(
-					`Error: Invalid topic "${topic}". Topics must be kebab-case (e.g., "auth-flow", "planning").\n`,
-				);
+		.action(async (topicArg: string | undefined) => {
+			const cwd = process.cwd();
+
+			const resolved = resolveTopic(topicArg, cwd);
+			if (!resolved.ok) {
+				process.stderr.write(`Error: ${resolved.error}\n`);
 				process.exitCode = 1;
 				return;
 			}
+			const { topic } = resolved;
 
-			const paths = resolveProject(process.cwd());
+			if (resolved.fromBranch) {
+				process.stderr.write(`Using branch as topic: ${topic}\n`);
+			}
+
+			const paths = resolveProject(cwd);
 			if (!paths) {
 				process.stderr.write(
 					"Error: No dlr project found. Run 'dlr init' first.\n",

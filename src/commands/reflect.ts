@@ -1,23 +1,29 @@
 import type { Command } from 'commander';
 import { resolveProject, readSessionFile } from '../core/store.js';
 import { getLastNBlocks } from '../core/markdown.js';
-import { isValidTopic } from '../core/topic.js';
+import { resolveTopic } from '../core/topic.js';
 
 export function registerReflectCommand(program: Command): void {
 	program
-		.command('reflect <topic>')
+		.command('reflect [topic]')
 		.description('Output session history to stdout')
 		.option('-l, --last <n>', 'Output only the last N blocks')
-		.action((topic: string, options: { last?: string }) => {
-			if (!isValidTopic(topic)) {
-				process.stderr.write(
-					`Error: Invalid topic "${topic}". Topics must be kebab-case (e.g., "auth-flow", "planning").\n`,
-				);
+		.action((topicArg: string | undefined, options: { last?: string }) => {
+			const cwd = process.cwd();
+
+			const resolved = resolveTopic(topicArg, cwd);
+			if (!resolved.ok) {
+				process.stderr.write(`Error: ${resolved.error}\n`);
 				process.exitCode = 1;
 				return;
 			}
+			const { topic } = resolved;
 
-			const paths = resolveProject(process.cwd());
+			if (resolved.fromBranch) {
+				process.stderr.write(`Using branch as topic: ${topic}\n`);
+			}
+
+			const paths = resolveProject(cwd);
 			if (!paths) {
 				process.stderr.write(
 					"Error: No dlr project found. Run 'dlr init' first.\n",

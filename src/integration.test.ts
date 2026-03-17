@@ -203,16 +203,16 @@ describe('integration', () => {
 		expect(stderr).toContain('No content');
 	});
 
-	it('init twice in same directory → exit code 1', () => {
+	it('init twice in same directory → idempotent success', () => {
 		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
 
-		const { stderr, exitCode } = run(nodeCmd('init --name test-proj'), {
+		const { stdout, exitCode } = run(nodeCmd('init --name test-proj'), {
 			cwd: projectDir,
 			env: env(),
 		});
 
-		expect(exitCode).toBe(1);
-		expect(stderr).toContain('already initialized');
+		expect(exitCode).toBe(0);
+		expect(stdout).toContain('Regenerated .dlr-project');
 	});
 
 	it('timestamp is auto-generated (not in stdin, appears in file)', () => {
@@ -272,5 +272,131 @@ describe('integration', () => {
 
 		expect(exitCode).toBe(0);
 		expect(stdout).toContain('custom-name');
+	});
+
+	it('undo without --confirm → exit code 1', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- observation`,
+		});
+
+		const { stderr, exitCode } = run(nodeCmd('undo planning'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(1);
+		expect(stderr).toContain('--confirm');
+	});
+
+	it('undo --confirm removes the last block', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- first observation`,
+		});
+
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- second observation`,
+		});
+
+		const { stdout, exitCode } = run(nodeCmd('undo planning --confirm'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toContain('Removed 1 block');
+
+		const { stdout: reflected } = run(nodeCmd('reflect planning'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(reflected).toContain('first observation');
+		expect(reflected).not.toContain('second observation');
+	});
+
+	it('undo --last 2 --confirm removes multiple blocks', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- first`,
+		});
+
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- second`,
+		});
+
+		const { stdout, exitCode } = run(nodeCmd('undo planning --last 2 --confirm'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toContain('Removed 2 blocks');
+		expect(stdout).toContain('0 remaining');
+	});
+
+	it('delete topic without --confirm → exit code 1', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- observation`,
+		});
+
+		const { stderr, exitCode } = run(nodeCmd('delete topic planning'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(1);
+		expect(stderr).toContain('--confirm');
+	});
+
+	it('delete topic --confirm removes the topic', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+		run(nodeCmd('persist planning'), {
+			cwd: projectDir,
+			env: env(),
+			input: `### Constat\n- observation`,
+		});
+
+		const { stdout, exitCode } = run(nodeCmd('delete topic planning --confirm'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toContain("Deleted topic 'planning'");
+
+		const { exitCode: reflectCode } = run(nodeCmd('reflect planning'), {
+			cwd: projectDir,
+			env: env(),
+		});
+		expect(reflectCode).toBe(1);
+	});
+
+	it('delete project --confirm removes the project from store', () => {
+		run(nodeCmd('init --name test-proj'), { cwd: projectDir, env: env() });
+
+		const { stdout, exitCode } = run(nodeCmd('delete project test-proj --confirm'), {
+			cwd: projectDir,
+			env: env(),
+		});
+
+		expect(exitCode).toBe(0);
+		expect(stdout).toContain("Deleted project 'test-proj'");
 	});
 });

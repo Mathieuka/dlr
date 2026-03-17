@@ -5,6 +5,7 @@ import {
 	parseBlocks,
 	getLastNBlocks,
 	countBlockStats,
+	removeLastNBlocks,
 } from './markdown.js';
 
 const FRONTMATTER = `---
@@ -174,6 +175,53 @@ describe('markdown', () => {
 			const blocks = parseBlocks(file);
 			const stats = countBlockStats(blocks[0]!);
 			expect(stats).toEqual({ constats: 1, decisions: 1 });
+		});
+	});
+
+	describe('removeLastNBlocks', () => {
+		function buildFile(...blocks: [string, string][]): string {
+			let content = FRONTMATTER;
+			for (const [header, body] of blocks) {
+				content = appendBlock(content, body, header);
+			}
+			return content;
+		}
+
+		it('removes the last block', () => {
+			const file = buildFile(
+				['## 2026-03-10 16:57', BLOCK_1],
+				['## 2026-03-11 19:42', BLOCK_2],
+			);
+			const result = removeLastNBlocks(file, 1);
+			const blocks = parseBlocks(result);
+			expect(blocks).toHaveLength(1);
+			expect(blocks[0]!.raw).toBe(BLOCK_1);
+		});
+
+		it('removes multiple blocks', () => {
+			const file = buildFile(
+				['## 2026-03-10 16:57', BLOCK_1],
+				['## 2026-03-11 19:42', BLOCK_2],
+			);
+			const result = removeLastNBlocks(file, 2);
+			const blocks = parseBlocks(result);
+			expect(blocks).toHaveLength(0);
+		});
+
+		it('preserves frontmatter when all blocks removed', () => {
+			const file = buildFile(['## 2026-03-10 16:57', BLOCK_1]);
+			const result = removeLastNBlocks(file, 1);
+			expect(result).toContain('topic: planning');
+			expect(result).toContain('tags: []');
+			const blocks = parseBlocks(result);
+			expect(blocks).toHaveLength(0);
+		});
+
+		it('handles N greater than block count', () => {
+			const file = buildFile(['## 2026-03-10 16:57', BLOCK_1]);
+			const result = removeLastNBlocks(file, 10);
+			const blocks = parseBlocks(result);
+			expect(blocks).toHaveLength(0);
 		});
 	});
 });

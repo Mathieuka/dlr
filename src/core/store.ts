@@ -83,3 +83,18 @@ export function writeSessionFile(paths: DlrPaths, topic: string, content: string
 	const filePath = path.join(paths.sessions, `${topic}.md`);
 	fs.writeFileSync(filePath, content, 'utf-8');
 }
+
+export function deleteSessionFile(paths: DlrPaths, topic: string): boolean {
+	const filePath = path.join(paths.sessions, `${topic}.md`);
+	if (!fs.existsSync(filePath)) return false;
+	fs.unlinkSync(filePath);
+	return true;
+}
+
+export function deleteProject(projectName: string): boolean {
+	const root = getDlrRoot();
+	const projectDir = path.join(root, 'projects', projectName);
+	if (!fs.existsSync(projectDir)) return false;
+	fs.rmSync(projectDir, { recursive: true, force: true });
+	return true;
+}
