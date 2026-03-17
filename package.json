@@ -1,6 +1,6 @@
 {
   "name": "@mathieuka/dlr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Give your LLM coding agent a persistent memory across sessions.",
   "type": "module",
   "bin": {
