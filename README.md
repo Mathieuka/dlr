@@ -92,6 +92,8 @@ When `[topic]` is omitted, dlr uses the current git branch as topic.
 
 When you omit `[topic]`, dlr uses your current git branch. The branch is normalized to kebab-case: `feat/auth-login` becomes `auth-login`. Prefixes like `feat/`, `fix/`, `refactor/` are stripped automatically.
 
+This means you never have to think about topic names. Switch branches, and the agent automatically switches context. Each branch carries its own history of observations and decisions.
+
 On `main`, `develop`, or `master`, the agent asks you for the topic instead of defaulting to the branch name.
 
 ## Agent Setup
@@ -99,6 +101,14 @@ On `main`, `develop`, or `master`, the agent asks you for the topic instead of d
 `dlr init` handles everything. It searches for AGENTS.md files in your project and home config directories (`~/.config/*/`, `~/.cursor/`, `~/.claude/`), then offers to append the dlr workflow snippet. If no AGENTS.md exists, it creates one. The snippet teaches your agent the full workflow, no manual setup required.
 
 `dlr init` is idempotent. Run it again after upgrading to see the latest snippet.
+
+## Where Data Lives
+
+Nothing is stored in your repository. Sessions live in `~/.dlr/projects/<project>/sessions/<topic>.md`, plain markdown files you can read and edit. A small `.dlr-project` file at the repo root links the directory to its dlr project. It's gitignored and local to each developer, every contributor runs `dlr init` on their own machine.
+
+## Safe by Design
+
+`dlr init` never deletes or replaces content in your AGENTS.md files. It only appends. If the DLR section is already present, it skips and shows you the latest snippet for manual comparison.
 
 ## FAQ
 
