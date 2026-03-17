@@ -2,9 +2,9 @@
 
 Give your LLM coding agent a persistent memory across sessions.
 
-[![npm version](https://img.shields.io/npm/v/dlr.svg)](https://www.npmjs.com/package/dlr)
+[![npm version](https://img.shields.io/npm/v/@mathieuka/dlr.svg)](https://www.npmjs.com/package/@mathieuka/dlr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node Version](https://img.shields.io/node/v/dlr.svg)](https://nodejs.org)
+[![Node Version](https://img.shields.io/node/v/@mathieuka/dlr.svg)](https://nodejs.org)
 
 ## Why
 
@@ -19,13 +19,13 @@ dlr is not a vibe coding tool. It's designed for engineers who think and use age
 ## Install
 
 ```bash
-npm install -g dlr
+npm install -g @mathieuka/dlr
 ```
 
 Or run without installing:
 
 ```bash
-npx dlr init
+npx @mathieuka/dlr init
 ```
 
 ## Quick Start

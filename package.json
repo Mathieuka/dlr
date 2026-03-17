@@ -1,10 +1,10 @@
 {
-  "name": "dlr",
+  "name": "@mathieuka/dlr",
   "version": "0.1.0",
   "description": "Give your LLM coding agent a persistent memory across sessions.",
   "type": "module",
   "bin": {
-    "dlr": "./dist/cli.js"
+    "dlr": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -36,7 +36,7 @@
   "homepage": "https://github.com/Mathieuka/dlr#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mathieuka/dlr.git"
+    "url": "git+https://github.com/Mathieuka/dlr.git"
   },
   "bugs": {
     "url": "https://github.com/Mathieuka/dlr/issues"
