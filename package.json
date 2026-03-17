@@ -1,13 +1,15 @@
 {
   "name": "dlr",
   "version": "0.1.0",
-  "description": "Decision Log & Reflect — Never lose context between coding sessions",
+  "description": "Give your LLM coding agent a persistent memory across sessions.",
   "type": "module",
   "bin": {
     "dlr": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -21,12 +23,24 @@
   },
   "keywords": [
     "cli",
-    "decision-log",
-    "developer-tools",
     "llm",
-    "context"
+    "agent",
+    "decision-log",
+    "memory",
+    "context",
+    "agentic",
+    "developer-tools"
   ],
+  "author": "Mathieu Kahlaoui <mathieu@fabriq.fr>",
   "license": "MIT",
+  "homepage": "https://github.com/Mathieuka/dlr#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mathieuka/dlr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mathieuka/dlr/issues"
+  },
   "dependencies": {
     "@inquirer/prompts": "^8.3.2",
     "commander": "^13.1.0",
