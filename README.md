@@ -1,3 +1,9 @@
+
+
+
+https://github.com/user-attachments/assets/aa0cbd44-95b4-455c-9b95-958858543901
+
+
 # dlr
 
 Give your LLM coding agent a persistent memory across sessions.
